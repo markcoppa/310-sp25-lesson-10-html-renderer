@@ -153,7 +153,6 @@ def test_sub_element():
     """
     tests that you can add another element and still render properly
     """
-    pass
     page = Html()
     page.append("some plain text.")
     page.append(P("A simple paragraph of text"))
@@ -172,8 +171,41 @@ def test_sub_element():
     assert "<p>" in file_contents
     assert "</p>" in file_contents
 
+def test_id():
+    """
+    Tests that id is placed in tag
+    """
+    page = Html()
+    p = P("Paragraph content", id="myid")
+    page.append(p)
 
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<p id=\"myid\">" in file_contents
 
+def test_style():
+    """
+    Tests that id is placed in tag
+    """
+    page = Html()
+    p = P("Paragraph content", style="mystyle")
+    page.append(p)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<p style=\"mystyle\">" in file_contents
+
+def test_id_and_style():
+    """
+    Tests that id is placed in tag
+    """
+    page = Html()
+    p = P("Paragraph content", id="myid", style="mystyle")
+    page.append(p)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<p id=\"myid\" style=\"mystyle\">" in file_contents
 
 ########
 # Step 3
