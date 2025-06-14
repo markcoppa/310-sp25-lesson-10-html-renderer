@@ -8,7 +8,7 @@ A class-based system for rendering html.
 # This is the framework for the base class
 class Element:
 
-    def __init__(self, content=None, tag="", id="", style=""):
+    def __init__(self, content=None, tag="", id="", style="", href=""):
         if tag:
             self._tag = tag
         elif content == "None":
@@ -18,6 +18,7 @@ class Element:
         
         self._id = id
         self._style = style
+        self._href = href
 
         if content and content != "None":
             self._content = [content]
@@ -27,8 +28,8 @@ class Element:
     def append(self, new_content):
         self._content.append(new_content)
 
-    def render(self, out_file, oneline=False):
-        self.write_opening_tag(out_file, oneline)
+    def render(self, out_file, oneline=False, selfclosing=False):
+        self.write_opening_tag(out_file, oneline, selfclosing)
         for item in self._content:
             mro = str(item.__class__.__mro__[-2])
             if mro.__contains__(".Element'>"):
@@ -37,20 +38,28 @@ class Element:
                 out_file.write(item)
                 if not oneline:
                     out_file.write("\n")
-        self.write_closing_tag(out_file)
+        if not selfclosing:
+            self.write_closing_tag(out_file)
     
-    def write_opening_tag(self, out_file, oneline=False):
+    def write_opening_tag(self, out_file, oneline=False, selfclosing=False):
         id = ""
         if self._id != "":
             id = f" id=\"{self._id}\""
         style = ""
         if self._style != "":
             style = f" style=\"{self._style}\""
+        href = ""
+        if self._href:
+            href = f" href=\"{self._href}\""            
 
         if self._tag == "None":
             pass
         elif self._tag:
-            out_file.write(f"<{self._tag}{id}{style}>")
+            out_file.write(f"<{self._tag}{id}{style}{href}")
+            if selfclosing:
+                out_file.write(" />\n")
+            else:
+                out_file.write(">")
             if not oneline:
                 out_file.write("\n")
         else:
@@ -92,17 +101,37 @@ class OneLineTag(Element):
     such that it prints the element all on one line.
     """
 
-    def __init__(self, content=None, tag="", id="", style=""):
-        super().__init__(content=content, tag=tag, id=id, style=style)
+    def __init__(self, content=None, tag="", id="", style="", href=""):
+        super().__init__(content=content, tag=tag, id=id, style=style, href=href)
 
     def render(self, out_file):
         super().render(out_file, oneline=True)
 
+class SelfClosingTag(Element):
+    """
+    A subclass that overrides render, making a self closing tag
+    """
+
+    def __init__(self, content=None, tag="", id="", style=""):
+        super().__init__(content=content, tag=tag, id=id, style=style)
+
+    def render(self, out_file):
+        super().render(out_file, oneline=True, selfclosing=True)
+
 class Title(OneLineTag):
 
-    def __init__(self, content=None):
-        super().__init__(content=content, tag="title")
+    def __init__(self, content=None, id="", style=""):
+        super().__init__(content=content, tag="title", id="", style="")
 
+class HR(SelfClosingTag):
+
+    def __init__(self, content="", link=""):
+        super().__init__(content=content, tag="hr")
+
+class A(OneLineTag):
+
+    def __init__(self, content="", link=""):
+        super().__init__(content=content, tag="a", href=link)
 
 
 
@@ -139,7 +168,10 @@ if __name__ == "__main__":
     html.append(e)
     p = P("Paragraph content", id="myid", style="mystyle")
     html.append(p)
-
+    hr = HR()
+    html.append(hr)
+    a = A(content="link to google", link="http://google.com")
+    html.append(a)
     outfile = io.StringIO()
     top.render(outfile)
     print(outfile.getvalue())

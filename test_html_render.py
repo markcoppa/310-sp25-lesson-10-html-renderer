@@ -171,6 +171,11 @@ def test_sub_element():
     assert "<p>" in file_contents
     assert "</p>" in file_contents
 
+
+########
+# Step 3
+########
+
 def test_id():
     """
     Tests that id is placed in tag
@@ -185,7 +190,7 @@ def test_id():
 
 def test_style():
     """
-    Tests that id is placed in tag
+    Tests that style is placed in tag
     """
     page = Html()
     p = P("Paragraph content", style="mystyle")
@@ -197,7 +202,7 @@ def test_style():
 
 def test_id_and_style():
     """
-    Tests that id is placed in tag
+    Tests that id and style are placed in tag
     """
     page = Html()
     p = P("Paragraph content", id="myid", style="mystyle")
@@ -207,11 +212,30 @@ def test_id_and_style():
     print(file_contents) # so we can see it if the test fails
     assert "<p id=\"myid\" style=\"mystyle\">" in file_contents
 
-########
-# Step 3
-########
+def test_selfclosing():
+    """
+    Tests self closing tag
+    """
+    page = Html()
+    hr = HR()
+    page.append(hr)
 
-# Add your tests here!
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<hr />" in file_contents
+
+def test_href():
+    """
+    Tests href anchor
+    """
+    page = Html()
+    a = A(content="link to google", link="http://google.com")
+    page.append(a)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<a href=\"http://google.com\">link to google</a>" in file_contents
+
 
 # #####################
 # # indentation testing
