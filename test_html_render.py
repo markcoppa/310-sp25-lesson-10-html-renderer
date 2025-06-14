@@ -236,6 +236,60 @@ def test_href():
     print(file_contents) # so we can see it if the test fails
     assert "<a href=\"http://google.com\">link to google</a>" in file_contents
 
+def test_unorderedlist():
+    """
+    Tests unordered list element
+    """
+    page = Html()
+    ul = Ul(id="TheList", style="line-height:200%")
+    page.append(ul)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<ul id=\"TheList\" style=\"line-height:200%\">" in file_contents
+
+def test_listitem():
+    """
+    Tests list item
+    """
+    page = Html()
+    ul = Ul(id="TheList", style="line-height:200%")
+    page.append(ul)
+    li1 = Li("The first item in a list")
+    ul.append(li1)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<li>" in file_contents
+    assert "The first item in a list" in file_contents
+    assert "</li>" in file_contents
+
+def test_header_default():
+    """
+    Tests header using default level (1)
+    """
+    page = Html()
+    h1 = Header("Stuff goes here")
+    page.append(h1)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<h1>Stuff goes here</h1>" in file_contents
+
+def test_header_level2():
+    """
+    Tests header using custom level (2)
+    """
+    page = Html()
+    h2 = Header("Stuff goes here", level=2)
+    page.append(h2)
+
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<h2>Stuff goes here</h2>" in file_contents
+
+
+
 
 # #####################
 # # indentation testing

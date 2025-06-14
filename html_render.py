@@ -121,7 +121,7 @@ class SelfClosingTag(Element):
 class Title(OneLineTag):
 
     def __init__(self, content=None, id="", style=""):
-        super().__init__(content=content, tag="title", id="", style="")
+        super().__init__(content=content, tag="title", id=id, style=style)
 
 class HR(SelfClosingTag):
 
@@ -133,6 +133,19 @@ class A(OneLineTag):
     def __init__(self, content="", link=""):
         super().__init__(content=content, tag="a", href=link)
 
+class Ul(Element):
+    def __init__(self, content=None, id="", style=""):
+        print(f"id: {id}  style: {style}")
+        super().__init__(content=content, tag="ul", id=id, style=style)
+
+class Li(Element):
+    def __init__(self, content=None, id="", style=""):
+        super().__init__(content=content, tag="li", id=id, style=style)
+
+class Header(OneLineTag):
+    def __init__(self, content=None, id="", style="", level=1):
+        header_tag = "h" + str(level)
+        super().__init__(content=content, tag=header_tag, id="", style="")
 
 
 import io
@@ -172,6 +185,24 @@ if __name__ == "__main__":
     html.append(hr)
     a = A(content="link to google", link="http://google.com")
     html.append(a)
+
+    ul = Ul(id="TheList", style="line-height:200%")
+    li1 = Li("The first item in a list")
+    li2 = Li("This is the second item", style="color: red")
+    li3 = Li("And this is a")
+    li3.append(a)
+    li3.append("to google")
+    ul.append(li1)
+    ul.append(li2)
+    ul.append(li3)
+    html.append(ul)
+
+    h1 = Header("Stuff goes here")
+    html.append(h1)
+
+    h2 = Header("Python Class - Html rendering example", level=2)
+    html.append(h2)
+
     outfile = io.StringIO()
     top.render(outfile)
     print(outfile.getvalue())
