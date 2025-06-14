@@ -8,7 +8,7 @@ A class-based system for rendering html.
 # This is the framework for the base class
 class Element:
 
-    def __init__(self, content=None, tag="", id="", style="", href=""):
+    def __init__(self, content=None, tag="", id="", style="", href="", charset=""):
         if tag:
             self._tag = tag
         elif content == "None":
@@ -19,6 +19,7 @@ class Element:
         self._id = id
         self._style = style
         self._href = href
+        self._charset = charset
 
         if content and content != "None":
             self._content = [content]
@@ -50,12 +51,15 @@ class Element:
             style = f" style=\"{self._style}\""
         href = ""
         if self._href:
-            href = f" href=\"{self._href}\""            
+            href = f" href=\"{self._href}\""
+        charset = ""
+        if self._charset:
+            charset = f" charset=\"{self._charset}\""
 
         if self._tag == "None":
             pass
         elif self._tag:
-            out_file.write(f"<{self._tag}{id}{style}{href}")
+            out_file.write(f"<{self._tag}{id}{style}{href}{charset}")
             if selfclosing:
                 out_file.write(" />\n")
             else:
@@ -79,6 +83,10 @@ class Html(Element):
 
     def __init__(self, content=None, id="", style=""):
         super().__init__(content=content, tag="html", id=id, style=style)
+    
+    def render(self, out_file):
+        out_file.write("<!DOCTYPE html>\n")
+        super().render(out_file)
 
 class Body(Element):
 
@@ -112,8 +120,8 @@ class SelfClosingTag(Element):
     A subclass that overrides render, making a self closing tag
     """
 
-    def __init__(self, content=None, tag="", id="", style=""):
-        super().__init__(content=content, tag=tag, id=id, style=style)
+    def __init__(self, content=None, tag="", id="", style="", charset=""):
+        super().__init__(content=content, tag=tag, id=id, style=style, charset=charset)
 
     def render(self, out_file):
         super().render(out_file, oneline=True, selfclosing=True)
@@ -135,7 +143,6 @@ class A(OneLineTag):
 
 class Ul(Element):
     def __init__(self, content=None, id="", style=""):
-        print(f"id: {id}  style: {style}")
         super().__init__(content=content, tag="ul", id=id, style=style)
 
 class Li(Element):
@@ -146,6 +153,10 @@ class Header(OneLineTag):
     def __init__(self, content=None, id="", style="", level=1):
         header_tag = "h" + str(level)
         super().__init__(content=content, tag=header_tag, id="", style="")
+
+class Meta(SelfClosingTag):
+    def __init__(self, content="", charset=""):
+        super().__init__(content=content, tag="meta", charset=charset)
 
 
 import io
@@ -169,40 +180,28 @@ def render_result(element, ind=""):
 
 
 if __name__ == "__main__":
-    top = Element("None")
-    top.append("<!DOCTYPE html>")
+    html = Html()
     head = Head()
-    top.append(head)
-    html = Html(style="mystyle")
-    html.append(Title("Title goes here"))
-    head.append(html)
-    e = Body("this is some text")
-    e.append("and this is some more text")
-    html.append(e)
-    p = P("Paragraph content", id="myid", style="mystyle")
-    html.append(p)
-    hr = HR()
-    html.append(hr)
-    a = A(content="link to google", link="http://google.com")
-    html.append(a)
+    head.append(Meta(charset="UTF-8"))
+    head.append(Title("Python Class Sample page"))
+    html.append(head)
 
+    body = Body()
+    body.append(Header("Python Class - Html rendering example", level=2))
+    body.append(P("Here is a paragraph of text -- there could be more of them, but this is enough to show that we can do some text",
+                  style="text-align; font-style: oblique;"))
+    body.append(HR())
     ul = Ul(id="TheList", style="line-height:200%")
-    li1 = Li("The first item in a list")
-    li2 = Li("This is the second item", style="color: red")
+    ul.append(Li("The first item in a list"))
+    ul.append(Li("This is the second item", style="color: red"))
     li3 = Li("And this is a")
+    a = A(content="link to google", link="http://google.com")
     li3.append(a)
     li3.append("to google")
-    ul.append(li1)
-    ul.append(li2)
     ul.append(li3)
-    html.append(ul)
-
-    h1 = Header("Stuff goes here")
-    html.append(h1)
-
-    h2 = Header("Python Class - Html rendering example", level=2)
-    html.append(h2)
+    body.append(ul)
+    html.append(body)
 
     outfile = io.StringIO()
-    top.render(outfile)
+    html.render(outfile)
     print(outfile.getvalue())

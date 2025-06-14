@@ -288,7 +288,19 @@ def test_header_level2():
     print(file_contents) # so we can see it if the test fails
     assert "<h2>Stuff goes here</h2>" in file_contents
 
+def test_meta():
+    """
+    Tests meta one liner and charset
+    """
+    page = Html()
+    head = Head()
+    meta = Meta(charset="UTF-8")
+    head.append(meta)
 
+    page.append(head)
+    file_contents = render_result(page)
+    print(file_contents) # so we can see it if the test fails
+    assert "<meta charset=\"UTF-8\" />" in file_contents
 
 
 # #####################
