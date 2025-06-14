@@ -7,6 +7,7 @@ A class-based system for rendering html.
 
 # This is the framework for the base class
 class Element:
+    indent = "    "
 
     def __init__(self, content=None, tag="", id="", style="", href="", charset=""):
         if tag:
@@ -29,20 +30,22 @@ class Element:
     def append(self, new_content):
         self._content.append(new_content)
 
-    def render(self, out_file, oneline=False, selfclosing=False):
-        self.write_opening_tag(out_file, oneline, selfclosing)
+    def render(self, out_file, oneline=False, selfclosing=False, cur_ind=""):
+        self.write_opening_tag(out_file, oneline, selfclosing, cur_ind)
         for item in self._content:
+            next_ind = cur_ind + self.indent
             mro = str(item.__class__.__mro__[-2])
             if mro.__contains__(".Element'>"):
-                item.render(out_file)
+                item.render(out_file, cur_ind=next_ind)
             else:
-                out_file.write(item)
-                if not oneline:
-                    out_file.write("\n")
+                if oneline:
+                    out_file.write(item)
+                else:
+                    out_file.write(next_ind + item + "\n")
         if not selfclosing:
-            self.write_closing_tag(out_file)
+            self.write_closing_tag(out_file, cur_ind, oneline)
     
-    def write_opening_tag(self, out_file, oneline=False, selfclosing=False):
+    def write_opening_tag(self, out_file, oneline=False, selfclosing=False, cur_ind = ""):
         id = ""
         if self._id != "":
             id = f" id=\"{self._id}\""
@@ -59,7 +62,7 @@ class Element:
         if self._tag == "None":
             pass
         elif self._tag:
-            out_file.write(f"<{self._tag}{id}{style}{href}{charset}")
+            out_file.write(f"{cur_ind}<{self._tag}{id}{style}{href}{charset}")
             if selfclosing:
                 out_file.write(" />\n")
             else:
@@ -71,11 +74,14 @@ class Element:
             if not oneline:
                 out_file.write("\n")
     
-    def write_closing_tag(self, out_file):
+    def write_closing_tag(self, out_file, cur_ind = "", oneline=False):
         if self._tag == "None":
             pass
         elif self._tag:
-            out_file.write(f"</{self._tag}>\n")
+            if oneline:
+                out_file.write(f"</{self._tag}>\n")
+            else:
+                out_file.write(f"{cur_ind}</{self._tag}>\n")
         else:
             out_file.write(f"</html>\n")
 
@@ -84,9 +90,9 @@ class Html(Element):
     def __init__(self, content=None, id="", style=""):
         super().__init__(content=content, tag="html", id=id, style=style)
     
-    def render(self, out_file):
+    def render(self, out_file, cur_ind=""):
         out_file.write("<!DOCTYPE html>\n")
-        super().render(out_file)
+        super().render(out_file, cur_ind=cur_ind)
 
 class Body(Element):
 
@@ -112,8 +118,8 @@ class OneLineTag(Element):
     def __init__(self, content=None, tag="", id="", style="", href=""):
         super().__init__(content=content, tag=tag, id=id, style=style, href=href)
 
-    def render(self, out_file):
-        super().render(out_file, oneline=True)
+    def render(self, out_file, cur_ind=""):
+        super().render(out_file, oneline=True, cur_ind=cur_ind)
 
 class SelfClosingTag(Element):
     """
@@ -123,8 +129,8 @@ class SelfClosingTag(Element):
     def __init__(self, content=None, tag="", id="", style="", charset=""):
         super().__init__(content=content, tag=tag, id=id, style=style, charset=charset)
 
-    def render(self, out_file):
-        super().render(out_file, oneline=True, selfclosing=True)
+    def render(self, out_file, cur_ind=""):
+        super().render(out_file, oneline=True, selfclosing=True, cur_ind=cur_ind)
 
 class Title(OneLineTag):
 
