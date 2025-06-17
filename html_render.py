@@ -137,7 +137,7 @@ class Title(OneLineTag):
     def __init__(self, content=None, id="", style=""):
         super().__init__(content=content, tag="title", id=id, style=style)
 
-class HR(SelfClosingTag):
+class Hr(SelfClosingTag):
 
     def __init__(self, content="", link=""):
         super().__init__(content=content, tag="hr")
@@ -155,8 +155,8 @@ class Li(Element):
     def __init__(self, content=None, id="", style=""):
         super().__init__(content=content, tag="li", id=id, style=style)
 
-class Header(OneLineTag):
-    def __init__(self, content=None, id="", style="", level=1):
+class H(OneLineTag):
+    def __init__(self, level= 1, content=None, id="", style=""):
         header_tag = "h" + str(level)
         super().__init__(content=content, tag=header_tag, id="", style="")
 
@@ -193,10 +193,10 @@ if __name__ == "__main__":
     html.append(head)
 
     body = Body()
-    body.append(Header("Python Class - Html rendering example", level=2))
+    body.append(H("Python Class - Html rendering example", level=2))
     body.append(P("Here is a paragraph of text -- there could be more of them, but this is enough to show that we can do some text",
                   style="text-align; font-style: oblique;"))
-    body.append(HR())
+    body.append(Hr())
     ul = Ul(id="TheList", style="line-height:200%")
     ul.append(Li("The first item in a list"))
     ul.append(Li("This is the second item", style="color: red"))

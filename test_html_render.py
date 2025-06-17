@@ -217,7 +217,7 @@ def test_selfclosing():
     Tests self closing tag
     """
     page = Html()
-    hr = HR()
+    hr = Hr()
     page.append(hr)
 
     file_contents = render_result(page)
@@ -269,7 +269,7 @@ def test_header_default():
     Tests header using default level (1)
     """
     page = Html()
-    h1 = Header("Stuff goes here")
+    h1 = H(content="Stuff goes here")
     page.append(h1)
 
     file_contents = render_result(page)
@@ -281,7 +281,7 @@ def test_header_level2():
     Tests header using custom level (2)
     """
     page = Html()
-    h2 = Header("Stuff goes here", level=2)
+    h2 = H(2, "Stuff goes here")
     page.append(h2)
 
     file_contents = render_result(page)
@@ -362,7 +362,7 @@ def test_element_indent1():
 
     <html>
         this is some text
-    <\html>
+    <\\html>
 
     More complex indentation should be tested later.
     """
